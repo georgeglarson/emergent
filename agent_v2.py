@@ -9,6 +9,7 @@ from openai import OpenAI
 from state_manager import StateManager
 from tools.file_tools import FileTools
 from tools.command_tools import CommandTools
+from reliability import ReliabilityMonitor, ProgressTracker
 
 
 class AutonomousAgentV2:
@@ -19,9 +20,22 @@ class AutonomousAgentV2:
         self.state_manager = StateManager(workspace_path)
         self.file_tools = FileTools(workspace_path)
         self.command_tools = CommandTools(workspace_path)
-        self.client = OpenAI()
-        self.model = "gpt-4.1-mini"
+        # Use Venice API by default, fallback to OpenAI
+        venice_key = os.getenv("VENICE_API_KEY")
+        if venice_key:
+            self.client = OpenAI(
+                api_key=venice_key,
+                base_url="https://api.venice.ai/api/v1"
+            )
+            self.model = "llama-3.3-70b"  # Venice model
+        else:
+            self.client = OpenAI()  # Fallback to OpenAI
+            self.model = "gpt-4.1-mini"
         self.running = False
+        
+        # Reliability monitoring for 24/7 operation
+        self.reliability = ReliabilityMonitor()
+        self.progress = ProgressTracker()
         
         # Define available tools for function calling
         self.tools_schema = [

@@ -1,7 +1,7 @@
 # Goals
 
 ## Primary Objective
-Create a Python script that calculates fibonacci numbers
+Create a simple hello world Python script
 
 ## Success Criteria
 - [ ] Goal clearly understood
